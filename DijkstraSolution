@@ -1,0 +1,103 @@
+class Solution {
+    
+    public boolean containsame(int[] a, int[] b){
+        int len1 = a.length;
+        int len2 = b.length;
+        int i=0;
+        int j=0;
+        while(i<len1 && j<len2){
+            if(a[i] == b[j]) return true;
+            if(a[i] < b[j]) i++; else j++;
+        }
+        return false;
+    }
+    
+    public int Dijkstra(int[][] graph){
+        int num = graph.length;
+        boolean[] flag = new boolean[num];
+        int[] dist = new int[num];
+        for(int i=0; i<num; i++){
+            dist[i] = graph[num-2][i];
+            flag[i] = false;
+        }
+        dist[num-2]=0;
+        flag[num-2]=true;
+        
+        int k=0;
+        for(int i=1; i<num; i++){
+            int min = Integer.MAX_VALUE;
+            for(int j=0; j<num; j++){
+                if(!flag[j] && dist[j] < min){
+                    min = dist[j];
+                    k = j;
+                }
+            }
+            flag[k] = true;
+            if(k==num-1){
+                return dist[num-1];
+            }
+            for(int j=0; j<num; j++){
+                int tmp = (graph[k][j]==Integer.MAX_VALUE? Integer.MAX_VALUE: (min + graph[k][j]));
+                if(flag[j]==false && tmp<dist[j]){
+                    dist[j] = tmp;
+                }
+            }
+        }
+        return dist[num-1];
+    }
+    
+    public int numBusesToDestination(int[][] routes, int source, int target) {
+        int nodes_num = routes.length;
+        int ans = 0;
+
+        if(nodes_num == 1){
+            int[] t = new int[0];
+            t[0] = target;
+            if(containsame(routes[0], t)){
+                return 0;
+            }else{
+                return -1;
+            }
+        }
+
+        int[][] graph = new int[nodes_num + 2][nodes_num + 2];
+        for(int i =0; i<nodes_num + 2; i++){
+            for(int j =0; j<nodes_num + 2; j++){
+                graph[i][j] = Integer.MAX_VALUE;
+            }
+        }
+        int[] s = new int[1];
+        int[] t = new int[1];
+        s[0] = source;
+        t[0] = target;
+        for(int i=0; i<nodes_num-1; i++){
+            for(int j=i+1; j<nodes_num; j++){
+                if(containsame(routes[i], routes[j])){
+                    graph[i][j] = 1;
+                    graph[j][i] = 1;
+                }
+            }
+        }
+        for(int i=0; i<nodes_num; i++){
+            if(containsame(routes[i], t)){
+                graph[i][nodes_num + 1] = 1;
+            }
+            if(containsame(routes[i], s)){
+                graph[nodes_num][i] = 1;
+            }
+        }
+
+        ans = Dijkstra(graph);
+        if(ans == Integer.MAX_VALUE){
+            return -1;
+        }else if(ans == 2){
+            if(source == target){
+                return 0;
+            }else{
+                return 1;
+            }
+        }else{
+            return ans-1;
+        }
+    }        
+}
